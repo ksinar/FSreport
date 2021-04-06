@@ -8,5 +8,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <string.h>
 
 #endif

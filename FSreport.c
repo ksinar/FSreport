@@ -1,59 +1,76 @@
 #include "FSreport.h"
 
 int main(int argc, char **argv){
-    /*
+    int report_type = 0;
     if(argc != 3){
-        printf("Usage: ./FSreport <report type> <path>\n");
+        printf("usage: %s (-tree or -inode) (directory path)\n", argv[0]);
         return -1;
     }
-    */
+    if(!strcmp("-inode", argv[1])){
+        report_type = 1;
+    } else if(!strcmp("-tree", argv[1])){
+        report_type = 2;
+    }
 
     DIR *rootdir = NULL;
-    rootdir = opendir(argv[1]);
+    rootdir = opendir(argv[2]);
     if(rootdir == NULL){
         fprintf(stderr, "could not open directory\n");
         exit(1);
     }
-    printf("---------------------------\n");
-    printf("Level 1 Inodes: %s\n", argv[1]);
-    struct dirent *directory = readdir(rootdir);
-    int fd = 0;
-    while(directory != NULL){
-        //printf("dirname: %s\n",directory->d_name);
+    switch(report_type){
+
+        case 1: 
+
+            printf("---------------------------\n");
+            printf("Level 1 Inodes: %s\n", argv[2]);
+            struct dirent *directory = readdir(rootdir);
+            int fd = 0;
+            while(directory != NULL){
+                //printf("dirname: %s\n",directory->d_name);
 
 
-        fd = open(directory->d_name, O_RDONLY);
+                fd = open(directory->d_name, O_RDONLY);
 
-        struct stat filestat;
-        fstat(fd,&filestat);
+                struct stat filestat;
+                fstat(fd,&filestat);
 
-        printf("%10d: \t",filestat.st_ino);
-        printf("%d\t",filestat.st_size);
-        printf("%d\t",filestat.st_blocks);
-        printf("%d\t",(filestat.st_size / 512));
-        printf("%s\n", directory->d_name);
-        directory = readdir(rootdir);
+                printf("%10d: \t",filestat.st_ino);
+                printf("%d\t",filestat.st_size);
+                printf("%d\t",filestat.st_blocks);
+                printf("%d\t",(filestat.st_size / 512));
+                printf("%s\n", directory->d_name);
+                directory = readdir(rootdir);
+            }
+            printf("---------------------------\n");
+
+            /*
+               printf("File Permissions: \t");
+               printf( (S_ISDIR(filestat.st_mode)) ? "d" : "-");
+               printf( (filestat.st_mode & S_IRUSR) ? "r" : "-");
+               printf( (filestat.st_mode & S_IWUSR) ? "w" : "-");
+               printf( (filestat.st_mode & S_IXUSR) ? "x" : "-");
+               printf( (filestat.st_mode & S_IRGRP) ? "r" : "-");
+               printf( (filestat.st_mode & S_IWGRP) ? "w" : "-");
+               printf( (filestat.st_mode & S_IXGRP) ? "x" : "-");
+               printf( (filestat.st_mode & S_IROTH) ? "r" : "-");
+               printf( (filestat.st_mode & S_IWOTH) ? "w" : "-");
+               printf( (filestat.st_mode & S_IXOTH) ? "x" : "-");
+               printf("\n\n");
+
+               printf("The file %s a symbolic link\n\n", (S_ISLNK(filestat.st_mode)) ? "is" : "is not");
+               */
+            //    close(fd);
+
+            free(rootdir);
+            break;
+
+        case 2:
+            printf("-tree stub\n");
+            break;
+
+        default:
+            printf("usage: %s (-tree or -inode) (directory path)\n", argv[0]);
     }
-        printf("---------------------------\n");
-
-/*
-    printf("File Permissions: \t");
-    printf( (S_ISDIR(filestat.st_mode)) ? "d" : "-");
-    printf( (filestat.st_mode & S_IRUSR) ? "r" : "-");
-    printf( (filestat.st_mode & S_IWUSR) ? "w" : "-");
-    printf( (filestat.st_mode & S_IXUSR) ? "x" : "-");
-    printf( (filestat.st_mode & S_IRGRP) ? "r" : "-");
-    printf( (filestat.st_mode & S_IWGRP) ? "w" : "-");
-    printf( (filestat.st_mode & S_IXGRP) ? "x" : "-");
-    printf( (filestat.st_mode & S_IROTH) ? "r" : "-");
-    printf( (filestat.st_mode & S_IWOTH) ? "w" : "-");
-    printf( (filestat.st_mode & S_IXOTH) ? "x" : "-");
-    printf("\n\n");
-
-    printf("The file %s a symbolic link\n\n", (S_ISLNK(filestat.st_mode)) ? "is" : "is not");
-*/
-//    close(fd);
-
-    free(rootdir);
     return 0;
 }
