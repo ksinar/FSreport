@@ -10,4 +10,11 @@
 #include <dirent.h>
 #include <string.h>
 
+typedef struct inode{
+    unsigned long inode;
+    unsigned long size;
+    unsigned long blocks;
+    char *filename;
+} Inode;
+
 #endif

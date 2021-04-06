@@ -1,5 +1,12 @@
 #include "FSreport.h"
 
+int cmpfunc (const void * a, const void * b){
+    unsigned long x = ((Inode*)a)->inode;
+    unsigned long y = ((Inode*)b)->inode;
+
+    return(x-y);
+}
+
 int main(int argc, char **argv){
     int report_type = 0;
     if(argc != 3){
@@ -22,28 +29,53 @@ int main(int argc, char **argv){
 
         case 1: 
 
+            printf("File System Report: Inodes\n");
+
             printf("---------------------------\n");
             printf("Level 1 Inodes: %s\n", argv[2]);
             struct dirent *directory = readdir(rootdir);
             int fd = 0;
+            int file_counter = 0;
+            Inode *files = malloc(sizeof(Inode) * 1000);
             while(directory != NULL){
-                //printf("dirname: %s\n",directory->d_name);
-
-
+                files[file_counter].filename = malloc(sizeof(char) * 200);
+                //printf("dirname: %s\n",directory.d_name);
                 fd = open(directory->d_name, O_RDONLY);
 
                 struct stat filestat;
                 fstat(fd,&filestat);
 
-                printf("%10d: \t",filestat.st_ino);
-                printf("%d\t",filestat.st_size);
-                printf("%d\t",filestat.st_blocks);
-                printf("%d\t",(filestat.st_size / 512));
-                printf("%s\n", directory->d_name);
+                files[file_counter].inode = filestat.st_ino;
+                files[file_counter].size = filestat.st_size;
+                files[file_counter].blocks = filestat.st_blocks;
+                strcpy(files[file_counter].filename, directory->d_name);
+
                 directory = readdir(rootdir);
+                file_counter++;
+            }
+
+            qsort(files,file_counter,sizeof(Inode),cmpfunc);
+            for(int i = 0; i < file_counter; i++){
+
+                printf("%10lu: \t",files[i].inode);
+                printf("%lu\t",files[i].size);
+                printf("%lu\t",files[i].blocks);
+                printf("%lu\t",(files[i].size / 512));
+                printf("%s\n", files[i].filename);
             }
             printf("---------------------------\n");
 
+            //    close(fd);
+            
+            for(int i = 0; i < file_counter; i++){
+                free(files[i].filename);
+            }
+            free(files);
+
+            break;
+
+        case 2:
+            printf("File System Report: Tree Directory Structure\n");
             /*
                printf("File Permissions: \t");
                printf( (S_ISDIR(filestat.st_mode)) ? "d" : "-");
@@ -59,18 +91,13 @@ int main(int argc, char **argv){
                printf("\n\n");
 
                printf("The file %s a symbolic link\n\n", (S_ISLNK(filestat.st_mode)) ? "is" : "is not");
-               */
-            //    close(fd);
-
-            free(rootdir);
-            break;
-
-        case 2:
+           */
             printf("-tree stub\n");
             break;
 
         default:
             printf("usage: %s (-tree or -inode) (directory path)\n", argv[0]);
     }
+    closedir(rootdir);
     return 0;
 }
