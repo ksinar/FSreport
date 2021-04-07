@@ -110,6 +110,11 @@ int main(int argc, char **argv){
         report_type = 2;
     }
 
+    int len = strlen(argv[2]);
+    if(argv[2][len - 1] != '/'){
+        strcat(argv[2], "/");
+    }
+
     DIR *rootdir = NULL;
     rootdir = opendir(argv[2]);
     if(rootdir == NULL){
