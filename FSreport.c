@@ -18,6 +18,9 @@ void print_inodes(DIR *dir, int level, char *path){
     for(int i = 0; i < 1000; i++){
         files[i] = malloc(sizeof(Inode));
         files[i]->filename = malloc(sizeof(char) * 200);
+        files[i]->blocks = 0;
+        files[i]->inode = 0;
+        files[i]->size = 0;
     }
     char **directories = malloc(sizeof(char*) * 100);
     for(int i = 0; i < 100; i++){
@@ -64,11 +67,15 @@ void print_inodes(DIR *dir, int level, char *path){
         printf("%s\n", files[i]->filename);
         
     }
+    printf("\n");
 
     for(int i = 0; i < dir_counter; i++){
         DIR *dir_recur = opendir(directories[i]);
-        print_inodes(dir_recur,level+1,directories[i]);
-        closedir(dir_recur);
+        //printf("error: %d", errno);
+        if(dir_recur != NULL){
+            print_inodes(dir_recur,level+1,directories[i]);
+            closedir(dir_recur);
+        }
     }
 
     for(int i = 0; i < 100; i++){
