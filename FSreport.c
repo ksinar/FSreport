@@ -1,18 +1,71 @@
 #include "FSreport.h"
 
-void swap(Inode *xp, Inode *yp)
+void swapInode(Inode *xp, Inode *yp)
 {
     Inode temp = *xp;
     *xp = *yp;
     *yp = temp;
 }
 
-void bubbleSort(Inode **files, int n)
+void bubbleSortInode(Inode **files, int n)
 {
     for (int i = 0; i < n - 1; i++){
         for (int j = 0; j < n - i - 1; j++){
             if (files[j]->inode > files[j + 1]->inode){
-                swap(files[j], files[j + 1]);
+                swapInode(files[j], files[j + 1]);
+            }
+        }
+    }
+}
+
+void print_tree(DIR *dir, int level, char *path){
+    struct dirent *directory = readdir(dir);
+    printf("Level %i: %s\n", level, path);
+    int fd = 0;
+    int file_counter = 0;
+    int dir_counter = 0;
+    TreeLevel **files = malloc(sizeof(TreeLevel *) * 1000);
+    TreeLevel **directories = malloc(sizeof(TreeLevel *) * 1000);
+    for(int i = 0; i < 1000; i++){
+        files[i] = malloc(sizeof(TreeLevel));
+        files[i]->permissions = malloc(sizeof(char) * 200);
+        files[i]->ownership = malloc(sizeof(char) * 200);
+        files[i]->filename = malloc(sizeof(char) * 200);
+        files[i]->last_accessed = malloc(sizeof(char) * 200);
+        files[i]->last_modified = malloc(sizeof(char) * 200);
+        files[i]->inode = 0;
+        files[i]->size = 0;
+
+        directories[i] = malloc(sizeof(TreeLevel));
+        directories[i]->permissions = malloc(sizeof(char) * 200);
+        directories[i]->ownership = malloc(sizeof(char) * 200);
+        directories[i]->filename = malloc(sizeof(char) * 200);
+        directories[i]->last_accessed = malloc(sizeof(char) * 200);
+        directories[i]->last_modified = malloc(sizeof(char) * 200);
+        directories[i]->inode = 0;
+        directories[i]->size = 0;
+    }
+    char **dir_names = malloc(sizeof(char *) * 100);
+    for(int i = 0; i < 100; i++){
+        dir_names[i] = malloc(sizeof(char) * 200);
+    }
+    while(directory != NULL){
+        if((strcmp(directory->d_name,"..")) && (strcmp(directory->d_name,"."))){
+            char *open_name = malloc(sizeof(char) * 1000);
+            sprintf(open_name,"%s/%s",path,directory->d_name);
+            fd = open(open_name, O_RDONLY);
+            if(fd == -1){
+                printf("Unable to open file. Errno: %d\n", errno);
+                break;
+            }
+            struct stat filestat;
+            fstat(fd,&filestat);
+            if(S_ISDIR(filestat.st_mode)){
+                sprintf(dir_names[dir_counter],"%s%s",path, directory->d_name);
+                directories[dir_counter]->inode = filestat.st_ino;
+                directories[dir_counter]->size = filestat.st_size;
+                
+                dir_counter++;
             }
         }
     }
@@ -38,15 +91,15 @@ void print_inodes(DIR *dir, int level, char *path){
     }
     while(directory != NULL){
         if((strcmp(directory->d_name,"..")) && (strcmp(directory->d_name,"."))){
-        char *open_name = malloc(sizeof(char) * 1000);
-        sprintf(open_name,"%s/%s",path,directory->d_name);
-        fd = open(open_name, O_RDONLY);
-        if(fd == -1){
-            printf("Unable to open file. Errno: %d\n", errno);
-            break;
-        }
-        struct stat filestat;
-        fstat(fd,&filestat);
+            char *open_name = malloc(sizeof(char) * 1000);
+            sprintf(open_name,"%s/%s",path,directory->d_name);
+            fd = open(open_name, O_RDONLY);
+            if(fd == -1){
+                printf("Unable to open file. Errno: %d\n", errno);
+                break;
+            }
+            struct stat filestat;
+            fstat(fd,&filestat);
 
             files[file_counter]->inode = filestat.st_ino;
             files[file_counter]->size = filestat.st_size;
@@ -62,10 +115,10 @@ void print_inodes(DIR *dir, int level, char *path){
         }
         directory = readdir(dir);
         close(fd);
-        
+
     }
 
-    bubbleSort(files, file_counter);
+    bubbleSortInode(files, file_counter);
 
     for(int i = 0; i < file_counter; i++){
 
@@ -74,7 +127,7 @@ void print_inodes(DIR *dir, int level, char *path){
         printf("%lu\t",files[i]->blocks);
         printf("%lu\t",(files[i]->size / 512));
         printf("%s\n", files[i]->filename);
-        
+
     }
     printf("\n");
 
@@ -96,10 +149,6 @@ void print_inodes(DIR *dir, int level, char *path){
         free(files[i]);
     }
     free(files);
-
-}
-
-void print_tree(DIR *dir, int level, char *path){
 
 }
 
@@ -138,7 +187,7 @@ int main(int argc, char **argv){
 
         case 2:
             printf("File System Report: Tree Directory Structure\n");
-            
+
             print_tree(rootdir, 1, argv[2]);
 
             break;
