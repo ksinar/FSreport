@@ -39,9 +39,6 @@ void print_inodes(DIR *dir, int level, char *path){
         struct stat filestat;
         fstat(fd,&filestat);
 
-        
-            //files[file_counter]->filename = malloc(sizeof(char) * 200);
-
             files[file_counter]->inode = filestat.st_ino;
             files[file_counter]->size = filestat.st_size;
             files[file_counter]->blocks = filestat.st_blocks;
