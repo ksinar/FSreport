@@ -27,6 +27,7 @@ void print_inodes(DIR *dir, int level, char *path){
         directories[i] = malloc(sizeof(char) * 200);
     }
     while(directory != NULL){
+        if((strcmp(directory->d_name,"..")) && (strcmp(directory->d_name,"."))){
         char *open_name = malloc(sizeof(char) * 1000);
         sprintf(open_name,"%s/%s",path,directory->d_name);
         //printf("%s\n", open_name);
@@ -38,7 +39,7 @@ void print_inodes(DIR *dir, int level, char *path){
         struct stat filestat;
         fstat(fd,&filestat);
 
-        if((strcmp(directory->d_name,"..")) && (strcmp(directory->d_name,"."))){
+        
             //files[file_counter]->filename = malloc(sizeof(char) * 200);
 
             files[file_counter]->inode = filestat.st_ino;
@@ -48,13 +49,14 @@ void print_inodes(DIR *dir, int level, char *path){
 
             file_counter++;
             if(S_ISDIR(filestat.st_mode)){
-                sprintf(directories[dir_counter],"%s/%s",path, directory->d_name);
+                sprintf(directories[dir_counter],"%s%s",path, directory->d_name);
                 dir_counter++;
             }
+            free(open_name);
         }
         directory = readdir(dir);
         close(fd);
-        free(open_name);
+        
     }
 
     qsort(files,file_counter,sizeof(Inode),cmpfunc);
@@ -71,7 +73,7 @@ void print_inodes(DIR *dir, int level, char *path){
     printf("\n");
 
     for(int i = 0; i < dir_counter; i++){
-        printf("%s\n",directories[i]);
+        //printf("%s\n",directories[i]);
         DIR *dir_recur = opendir(directories[i]);
         if(dir_recur != NULL){
             print_inodes(dir_recur,level+1,directories[i]);
