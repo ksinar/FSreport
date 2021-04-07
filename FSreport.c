@@ -28,7 +28,7 @@ void print_tree(DIR *dir, int level, char *path){
     TreeLevel **directories = malloc(sizeof(TreeLevel *) * 1000);
     for(int i = 0; i < 1000; i++){
         files[i] = malloc(sizeof(TreeLevel));
-        files[i]->permissions = malloc(sizeof(char) * 200);
+        files[i]->permissions = malloc((sizeof(char) * 9) + 1);
         files[i]->ownership = malloc(sizeof(char) * 200);
         files[i]->filename = malloc(sizeof(char) * 200);
         files[i]->last_accessed = malloc(sizeof(char) * 200);
@@ -37,7 +37,7 @@ void print_tree(DIR *dir, int level, char *path){
         files[i]->size = 0;
 
         directories[i] = malloc(sizeof(TreeLevel));
-        directories[i]->permissions = malloc(sizeof(char) * 200);
+        directories[i]->permissions = malloc((sizeof(char) * 9) + 1);
         directories[i]->ownership = malloc(sizeof(char) * 200);
         directories[i]->filename = malloc(sizeof(char) * 200);
         directories[i]->last_accessed = malloc(sizeof(char) * 200);
@@ -60,15 +60,137 @@ void print_tree(DIR *dir, int level, char *path){
             }
             struct stat filestat;
             fstat(fd,&filestat);
+            struct passwd *pw = getpwuid(filestat.st_uid);
+            struct group  *gr = getgrgid(filestat.st_gid);
+            mode_t perm = filestat.st_mode;
             if(S_ISDIR(filestat.st_mode)){
                 sprintf(dir_names[dir_counter],"%s%s",path, directory->d_name);
                 directories[dir_counter]->inode = filestat.st_ino;
                 directories[dir_counter]->size = filestat.st_size;
+                sprintf(directories[dir_counter]->ownership,"%s (%s)", pw->pw_name, gr->gr_name);
+                directories[dir_counter]->permissions[0] = (perm & S_IRUSR) ? 'r' : '-';
+                directories[dir_counter]->permissions[1] = (perm & S_IWUSR) ? 'w' : '-';
+                directories[dir_counter]->permissions[2] = (perm & S_IXUSR) ? 'x' : '-';
+                directories[dir_counter]->permissions[3] = (perm & S_IRGRP) ? 'r' : '-';
+                directories[dir_counter]->permissions[4] = (perm & S_IWGRP) ? 'w' : '-';
+                directories[dir_counter]->permissions[5] = (perm & S_IXGRP) ? 'x' : '-';
+                directories[dir_counter]->permissions[6] = (perm & S_IROTH) ? 'r' : '-';
+                directories[dir_counter]->permissions[7] = (perm & S_IWOTH) ? 'w' : '-';
+                directories[dir_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
+                directories[dir_counter]->permissions[9] = '\0';
                 
+                struct tm *accessed;
+                time_t temp = filestat.st_atime;
+                time(&temp);
+                accessed = localtime(&temp);
+                strcpy(directories[dir_counter]->last_accessed,asctime(accessed));
+
+                struct tm *modified;
+                temp = filestat.st_mtime;
+                time(&temp);
+                modified = localtime(&temp);
+                strcpy(directories[dir_counter]->last_modified,asctime(modified));
+                strcpy(directories[dir_counter]->filename,directory->d_name);
                 dir_counter++;
+            }else{
+                files[file_counter]->inode = filestat.st_ino;
+                files[file_counter]->size = filestat.st_size;
+                sprintf(files[file_counter]->ownership,"%s (%s)", pw->pw_name, gr->gr_name);
+                files[file_counter]->permissions[0] = (perm & S_IRUSR) ? 'r' : '-';
+                files[file_counter]->permissions[1] = (perm & S_IWUSR) ? 'w' : '-';
+                files[file_counter]->permissions[2] = (perm & S_IXUSR) ? 'x' : '-';
+                files[file_counter]->permissions[3] = (perm & S_IRGRP) ? 'r' : '-';
+                files[file_counter]->permissions[4] = (perm & S_IWGRP) ? 'w' : '-';
+                files[file_counter]->permissions[5] = (perm & S_IXGRP) ? 'x' : '-';
+                files[file_counter]->permissions[6] = (perm & S_IROTH) ? 'r' : '-';
+                files[file_counter]->permissions[7] = (perm & S_IWOTH) ? 'w' : '-';
+                files[file_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
+                files[file_counter]->permissions[9] = '\0';
+                
+                struct tm *accessed;
+                time_t temp = filestat.st_atime;
+                time(&temp);
+                accessed = localtime(&temp);
+                strcpy(files[file_counter]->last_accessed,asctime(accessed));
+
+                struct tm *modified;
+                temp = filestat.st_mtime;
+                time(&temp);
+                modified = localtime(&temp);
+                strcpy(files[file_counter]->last_modified,asctime(modified));
+                strcpy(files[file_counter]->filename,directory->d_name);
+                file_counter++;
             }
+            free(open_name);
+        }
+        directory = readdir(dir);
+        close(fd);
+    }
+
+    if(dir_counter > 0){
+        printf("Directories\n");
+    }
+
+    for(int i = 0; i < dir_counter; i++){
+        
+        printf("%s\t", directories[i]->ownership);
+        printf("%10lu\t", directories[i]->inode);
+        printf("%s\t", directories[i]->permissions);
+        printf("%lu\t",directories[i]->size);
+        printf("%s\n", directories[i]->filename);
+
+        printf("%s\t", directories[i]->last_accessed);
+        printf("%s\n", directories[i]->last_modified);
+    }
+    printf("\n");
+
+    if(file_counter > 0){
+        printf("Files\n");
+    }
+
+    for(int i = 0; i < file_counter; i++){
+        
+        printf("%s\t", files[i]->ownership);
+        printf("%10lu\t", files[i]->inode);
+        printf("%s\t", files[i]->permissions);
+        printf("%lu\t",files[i]->size);
+        printf("%s\n", files[i]->filename);
+
+        printf("%s\t", files[i]->last_accessed);
+        printf("%s\n", files[i]->last_modified);
+    }
+    printf("\n");
+
+    for(int i = 0; i < dir_counter; i++){
+        DIR *dir_recur = opendir(dir_names[i]);
+        if(dir_recur != NULL){
+            print_tree(dir_recur,level+1,dir_names[i]);
+            closedir(dir_recur);
         }
     }
+
+    for(int i = 0; i < 100; i++){
+        free(dir_names[i]);
+    }
+    free(dir_names);
+
+    for(int i = 0; i < 1000; i++){
+        free(files[i]->ownership);
+        free(files[i]->permissions);
+        free(files[i]->last_modified);
+        free(files[i]->last_accessed);
+        free(files[i]->filename);
+        free(files[i]);
+
+        free(directories[i]->ownership);
+        free(directories[i]->permissions);
+        free(directories[i]->last_modified);
+        free(directories[i]->last_accessed);
+        free(directories[i]->filename);
+        free(directories[i]);
+    }
+    free(files);
+    free(directories);
 }
 
 void print_inodes(DIR *dir, int level, char *path){

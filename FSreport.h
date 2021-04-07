@@ -10,6 +10,9 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
 
 typedef struct file_inode{
     unsigned long inode;
