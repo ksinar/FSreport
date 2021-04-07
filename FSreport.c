@@ -2,10 +2,17 @@
 #include <errno.h>
 
 int cmpfunc (const void * a, const void * b){
-    unsigned long x = ((Inode*)a)->inode;
-    unsigned long y = ((Inode*)b)->inode;
+    Inode *x = (Inode *)a;
+    Inode *y = (Inode *)b;
+    //printf("Comparing inodes %s and %s\n",x->filename, y->filename);
 
-    return(x-y);
+    if(x->inode > y->inode){
+        //printf("%10lu is greater than %10lu\n", x->inode, y->inode);
+        return 1;
+    }else{
+        //printf("%10lu is greater than %10lu\n", y->inode, x->inode);
+        return -1;
+    }
 }
 
 void print_inodes(DIR *dir, int level, char *path){
