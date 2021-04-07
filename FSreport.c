@@ -41,7 +41,6 @@ void print_inodes(DIR *dir, int level, char *path){
         }
         directory = readdir(dir);
 
-
     }
 
     qsort(files,file_counter,sizeof(Inode),cmpfunc);

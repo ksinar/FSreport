@@ -10,4 +10,4 @@ FSreport.o: FSreport.c FSreport.h
 	$(CC) $(CFLAGS) -c FSreport.c
 
 clean:
-	rm -rf *.o FSreport
+	rm -rf *.o FSreport vgcore*
