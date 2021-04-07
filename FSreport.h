@@ -18,4 +18,14 @@ typedef struct file_inode{
     char *filename;
 } Inode;
 
+typedef struct tree_level{
+    unsigned long inode;
+    unsigned long size;
+    char *permissions;
+    char *ownership;
+    char *filename;
+    char *last_accessed;
+    char *last_modified;
+} TreeLevel;
+
 #endif

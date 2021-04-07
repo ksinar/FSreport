@@ -9,12 +9,13 @@ void swap(Inode *xp, Inode *yp)
 
 void bubbleSort(Inode **files, int n)
 {
-   int i, j;
-   for (i = 0; i < n-1; i++)      
-  
-       for (j = 0; j < n-i-1; j++) 
-           if (files[j]->inode > files[j+1]->inode)
-              swap(files[j], files[j+1]);
+    for (int i = 0; i < n - 1; i++){
+        for (int j = 0; j < n - i - 1; j++){
+            if (files[j]->inode > files[j + 1]->inode){
+                swap(files[j], files[j + 1]);
+            }
+        }
+    }
 }
 
 void print_inodes(DIR *dir, int level, char *path){
@@ -98,6 +99,10 @@ void print_inodes(DIR *dir, int level, char *path){
 
 }
 
+void print_tree(DIR *dir, int level, char *path){
+
+}
+
 int main(int argc, char **argv){
     int report_type = 0;
     if(argc != 3){
@@ -133,7 +138,9 @@ int main(int argc, char **argv){
 
         case 2:
             printf("File System Report: Tree Directory Structure\n");
-            printf("-tree stub\n");
+            
+            print_tree(rootdir, 1, argv[2]);
+
             break;
 
         default:
