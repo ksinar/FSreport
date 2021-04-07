@@ -28,7 +28,12 @@ void print_inodes(DIR *dir, int level, char *path){
     }
     while(directory != NULL){
         char *open_name = malloc(sizeof(char) * 1000);
-        sprintf(open_name,"%s/%s",path,directory->d_name);
+        if(level == 1){
+            sprintf(open_name,"%s%s",path,directory->d_name);
+        }else{
+            sprintf(open_name,"%s/%s",path,directory->d_name);
+        }
+        //printf("%s\n", open_name);
         fd = open(open_name, O_RDONLY);
         if(fd == -1){
             printf("Unable to open file. Errno: %d\n", errno);
@@ -47,7 +52,7 @@ void print_inodes(DIR *dir, int level, char *path){
 
             file_counter++;
             if(S_ISDIR(filestat.st_mode)){
-                sprintf(directories[dir_counter],"%s/%s",path, directory->d_name);
+                sprintf(directories[dir_counter],"%s%s",path, directory->d_name);
                 dir_counter++;
             }
         }
@@ -70,8 +75,8 @@ void print_inodes(DIR *dir, int level, char *path){
     printf("\n");
 
     for(int i = 0; i < dir_counter; i++){
+        printf("%s\n",directories[i]);
         DIR *dir_recur = opendir(directories[i]);
-        //printf("error: %d", errno);
         if(dir_recur != NULL){
             print_inodes(dir_recur,level+1,directories[i]);
             closedir(dir_recur);
