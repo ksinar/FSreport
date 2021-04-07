@@ -7,12 +7,17 @@ int cmpfunc (const void * a, const void * b){
     return(x-y);
 }
 
-void print_inodes(DIR *dir, int level){
+void print_inodes(DIR *dir, int level, char *path){
     struct dirent *directory = readdir(dir);
     printf("Level %i Inodes: %s\n", level, directory->d_name);
     int fd = 0;
     int file_counter = 0;
+    int dir_counter = 0;
     Inode *files = malloc(sizeof(Inode) * 1000);
+    char **directories = malloc(sizeof(char*) * 100);
+    for(int i = 0; i < 100; i++){
+        directories[i] = malloc(sizeof(char) * 200);
+    }
     while(directory != NULL){
         //printf("dirname: %s\n",directory.d_name);
         fd = open(directory->d_name, O_RDONLY);
@@ -29,6 +34,10 @@ void print_inodes(DIR *dir, int level){
             strcpy(files[file_counter].filename, directory->d_name);
 
             file_counter++;
+            if(S_ISDIR(filestat.st_mode)){
+                sprintf(directories[dir_counter],"%s/%s",path, directory->d_name);
+                dir_counter++;
+            }
         }
         directory = readdir(dir);
 
@@ -36,6 +45,7 @@ void print_inodes(DIR *dir, int level){
     }
 
     qsort(files,file_counter,sizeof(Inode),cmpfunc);
+
     for(int i = 0; i < file_counter; i++){
 
         printf("%10lu: \t",files[i].inode);
@@ -45,10 +55,15 @@ void print_inodes(DIR *dir, int level){
         printf("%s\n", files[i].filename);
     }
 
-        for(int i = 0; i < file_counter; i++){
-            free(files[i].filename);
-        }
-        free(files);
+    for(int i = 0; i < dir_counter; i++){
+        DIR *dir_recur = opendir(directories[i]);
+        print_inodes(dir_recur,level+1,directories[i]);
+    }
+
+    for(int i = 0; i < file_counter; i++){
+        free(files[i].filename);
+    }
+    free(files);
 }
 
 int main(int argc, char **argv){
@@ -75,7 +90,7 @@ int main(int argc, char **argv){
 
             printf("File System Report: Inodes\n");
 
-            print_inodes(rootdir, 1);
+            print_inodes(rootdir, 1, argv[2]);
 
             //    close(fd);
 
