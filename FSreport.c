@@ -78,7 +78,6 @@ void print_inodes(DIR *dir, int level, char *path){
     printf("\n");
 
     for(int i = 0; i < dir_counter; i++){
-        //printf("%s\n",directories[i]);
         DIR *dir_recur = opendir(directories[i]);
         if(dir_recur != NULL){
             print_inodes(dir_recur,level+1,directories[i]);
