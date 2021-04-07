@@ -1,1 +1,1 @@
-Please run -inode test using valgrind. Otherwise it shows weird symbols for some filenames.
+-inode: path name has to end with /
