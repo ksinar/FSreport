@@ -1,18 +1,20 @@
 #include "FSreport.h"
-#include <errno.h>
 
-int cmpfunc (const void * a, const void * b){
-    Inode *x = (Inode *)a;
-    Inode *y = (Inode *)b;
-    //printf("Comparing inodes %s and %s\n",x->filename, y->filename);
+void swap(Inode *xp, Inode *yp)
+{
+    Inode temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
 
-    if(x->inode > y->inode){
-        //printf("%10lu is greater than %10lu\n", x->inode, y->inode);
-        return 1;
-    }else{
-        //printf("%10lu is greater than %10lu\n", y->inode, x->inode);
-        return -1;
-    }
+void bubbleSort(Inode **files, int n)
+{
+   int i, j;
+   for (i = 0; i < n-1; i++)      
+  
+       for (j = 0; j < n-i-1; j++) 
+           if (files[j]->inode > files[j+1]->inode)
+              swap(files[j], files[j+1]);
 }
 
 void print_inodes(DIR *dir, int level, char *path){
@@ -37,7 +39,6 @@ void print_inodes(DIR *dir, int level, char *path){
         if((strcmp(directory->d_name,"..")) && (strcmp(directory->d_name,"."))){
         char *open_name = malloc(sizeof(char) * 1000);
         sprintf(open_name,"%s/%s",path,directory->d_name);
-        //printf("%s\n", open_name);
         fd = open(open_name, O_RDONLY);
         if(fd == -1){
             printf("Unable to open file. Errno: %d\n", errno);
@@ -63,7 +64,7 @@ void print_inodes(DIR *dir, int level, char *path){
         
     }
 
-    qsort(files,file_counter,sizeof(Inode),cmpfunc);
+    bubbleSort(files, file_counter);
 
     for(int i = 0; i < file_counter; i++){
 

@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
+#include <errno.h>
 
 typedef struct file_inode{
     unsigned long inode;
