@@ -79,17 +79,21 @@ void print_tree(DIR *dir, int level, char *path){
                 directories[dir_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
                 directories[dir_counter]->permissions[9] = '\0';
                 
-                struct tm *accessed;
-                time_t temp = filestat.st_atime;
-                time(&temp);
-                accessed = localtime(&temp);
-                strcpy(directories[dir_counter]->last_accessed,asctime(accessed));
+                struct tm *ac;
+                time_t acc_time;
+                acc_time = filestat.st_atime;
+                ac = localtime(&acc_time);
+                char *accessed = asctime(ac);
+                accessed[strcspn(accessed, "\n")] = 0;
+                strcpy(directories[dir_counter]->last_accessed,accessed);
 
-                struct tm *modified;
-                temp = filestat.st_mtime;
-                time(&temp);
-                modified = localtime(&temp);
-                strcpy(directories[dir_counter]->last_modified,asctime(modified));
+                struct tm *mo;
+                time_t mod_time;
+                mod_time = filestat.st_mtime;
+                mo = localtime(&mod_time);
+                char *modified = asctime(mo);
+                modified[strcspn(modified, "\n")] = 0;
+                strcpy(directories[dir_counter]->last_modified,modified);
                 strcpy(directories[dir_counter]->filename,directory->d_name);
                 dir_counter++;
             }else{
@@ -106,18 +110,22 @@ void print_tree(DIR *dir, int level, char *path){
                 files[file_counter]->permissions[7] = (perm & S_IWOTH) ? 'w' : '-';
                 files[file_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
                 files[file_counter]->permissions[9] = '\0';
-                
-                struct tm *accessed;
-                time_t temp = filestat.st_atime;
-                time(&temp);
-                accessed = localtime(&temp);
-                strcpy(files[file_counter]->last_accessed,asctime(accessed));
 
-                struct tm *modified;
-                temp = filestat.st_mtime;
-                time(&temp);
-                modified = localtime(&temp);
-                strcpy(files[file_counter]->last_modified,asctime(modified));
+                struct tm *ac;
+                time_t acc_time;
+                acc_time = filestat.st_atime;
+                ac = localtime(&acc_time);
+                char *accessed = asctime(ac);
+                accessed[strcspn(accessed, "\n")] = 0;
+                strcpy(files[file_counter]->last_accessed,accessed);
+
+                struct tm *mo;
+                time_t mod_time;
+                mod_time = filestat.st_mtime;
+                mo = localtime(&mod_time);
+                char *modified = asctime(mo);
+                modified[strcspn(modified, "\n")] = 0;
+                strcpy(files[file_counter]->last_modified,modified);
                 strcpy(files[file_counter]->filename,directory->d_name);
                 file_counter++;
             }
