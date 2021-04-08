@@ -28,7 +28,7 @@ void print_tree(DIR *dir, int level, char *path){
     TreeLevel **directories = malloc(sizeof(TreeLevel *) * 1000);
     for(int i = 0; i < 1000; i++){
         files[i] = malloc(sizeof(TreeLevel));
-        files[i]->permissions = malloc((sizeof(char) * 9) + 1);
+        files[i]->permissions = malloc((sizeof(char) * 10) + 1);
         files[i]->ownership = malloc(sizeof(char) * 200);
         files[i]->filename = malloc(sizeof(char) * 200);
         files[i]->last_accessed = malloc(sizeof(char) * 200);
@@ -37,7 +37,7 @@ void print_tree(DIR *dir, int level, char *path){
         files[i]->size = 0;
 
         directories[i] = malloc(sizeof(TreeLevel));
-        directories[i]->permissions = malloc((sizeof(char) * 9) + 1);
+        directories[i]->permissions = malloc((sizeof(char) * 10) + 1);
         directories[i]->ownership = malloc(sizeof(char) * 200);
         directories[i]->filename = malloc(sizeof(char) * 200);
         directories[i]->last_accessed = malloc(sizeof(char) * 200);
@@ -68,16 +68,17 @@ void print_tree(DIR *dir, int level, char *path){
                 directories[dir_counter]->inode = filestat.st_ino;
                 directories[dir_counter]->size = filestat.st_size;
                 sprintf(directories[dir_counter]->ownership,"%s (%s)", pw->pw_name, gr->gr_name);
-                directories[dir_counter]->permissions[0] = (perm & S_IRUSR) ? 'r' : '-';
-                directories[dir_counter]->permissions[1] = (perm & S_IWUSR) ? 'w' : '-';
-                directories[dir_counter]->permissions[2] = (perm & S_IXUSR) ? 'x' : '-';
-                directories[dir_counter]->permissions[3] = (perm & S_IRGRP) ? 'r' : '-';
-                directories[dir_counter]->permissions[4] = (perm & S_IWGRP) ? 'w' : '-';
-                directories[dir_counter]->permissions[5] = (perm & S_IXGRP) ? 'x' : '-';
-                directories[dir_counter]->permissions[6] = (perm & S_IROTH) ? 'r' : '-';
-                directories[dir_counter]->permissions[7] = (perm & S_IWOTH) ? 'w' : '-';
-                directories[dir_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
-                directories[dir_counter]->permissions[9] = '\0';
+                directories[dir_counter]->permissions[0] = 'd';
+                directories[dir_counter]->permissions[1] = (perm & S_IRUSR) ? 'r' : '-';
+                directories[dir_counter]->permissions[2] = (perm & S_IWUSR) ? 'w' : '-';
+                directories[dir_counter]->permissions[3] = (perm & S_IXUSR) ? 'x' : '-';
+                directories[dir_counter]->permissions[4] = (perm & S_IRGRP) ? 'r' : '-';
+                directories[dir_counter]->permissions[5] = (perm & S_IWGRP) ? 'w' : '-';
+                directories[dir_counter]->permissions[6] = (perm & S_IXGRP) ? 'x' : '-';
+                directories[dir_counter]->permissions[7] = (perm & S_IROTH) ? 'r' : '-';
+                directories[dir_counter]->permissions[8] = (perm & S_IWOTH) ? 'w' : '-';
+                directories[dir_counter]->permissions[9] = (perm & S_IXOTH) ? 'x' : '-';
+                directories[dir_counter]->permissions[10] = '\0';
                 
                 struct tm *ac;
                 time_t acc_time;
@@ -100,16 +101,17 @@ void print_tree(DIR *dir, int level, char *path){
                 files[file_counter]->inode = filestat.st_ino;
                 files[file_counter]->size = filestat.st_size;
                 sprintf(files[file_counter]->ownership,"%s (%s)", pw->pw_name, gr->gr_name);
-                files[file_counter]->permissions[0] = (perm & S_IRUSR) ? 'r' : '-';
-                files[file_counter]->permissions[1] = (perm & S_IWUSR) ? 'w' : '-';
-                files[file_counter]->permissions[2] = (perm & S_IXUSR) ? 'x' : '-';
-                files[file_counter]->permissions[3] = (perm & S_IRGRP) ? 'r' : '-';
-                files[file_counter]->permissions[4] = (perm & S_IWGRP) ? 'w' : '-';
-                files[file_counter]->permissions[5] = (perm & S_IXGRP) ? 'x' : '-';
-                files[file_counter]->permissions[6] = (perm & S_IROTH) ? 'r' : '-';
-                files[file_counter]->permissions[7] = (perm & S_IWOTH) ? 'w' : '-';
-                files[file_counter]->permissions[8] = (perm & S_IXOTH) ? 'x' : '-';
-                files[file_counter]->permissions[9] = '\0';
+                files[file_counter]->permissions[0] = '-';
+                files[file_counter]->permissions[1] = (perm & S_IRUSR) ? 'r' : '-';
+                files[file_counter]->permissions[2] = (perm & S_IWUSR) ? 'w' : '-';
+                files[file_counter]->permissions[3] = (perm & S_IXUSR) ? 'x' : '-';
+                files[file_counter]->permissions[4] = (perm & S_IRGRP) ? 'r' : '-';
+                files[file_counter]->permissions[5] = (perm & S_IWGRP) ? 'w' : '-';
+                files[file_counter]->permissions[6] = (perm & S_IXGRP) ? 'x' : '-';
+                files[file_counter]->permissions[7] = (perm & S_IROTH) ? 'r' : '-';
+                files[file_counter]->permissions[8] = (perm & S_IWOTH) ? 'w' : '-';
+                files[file_counter]->permissions[9] = (perm & S_IXOTH) ? 'x' : '-';
+                files[file_counter]->permissions[10] = '\0';
 
                 struct tm *ac;
                 time_t acc_time;
